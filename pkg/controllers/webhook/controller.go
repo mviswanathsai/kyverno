@@ -10,7 +10,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/kyverno/kyverno/api/kyverno"
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
-	"github.com/kyverno/kyverno/ext/wildcard"
 	"github.com/kyverno/kyverno/pkg/autogen"
 	"github.com/kyverno/kyverno/pkg/client/clientset/versioned"
 	kyvernov1informers "github.com/kyverno/kyverno/pkg/client/informers/externalversions/kyverno/v1"
@@ -22,6 +21,7 @@ import (
 	controllerutils "github.com/kyverno/kyverno/pkg/utils/controller"
 	kubeutils "github.com/kyverno/kyverno/pkg/utils/kube"
 	runtimeutils "github.com/kyverno/kyverno/pkg/utils/runtime"
+	"github.com/kyverno/kyverno/pkg/utils/wildcard"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -122,7 +122,6 @@ func NewController(
 	server string,
 	defaultTimeout int32,
 	servicePort int32,
-	webhookServerPort int32,
 	autoUpdateWebhooks bool,
 	admissionReports bool,
 	runtime runtimeutils.Runtime,
@@ -512,7 +511,7 @@ func (c *controller) reconcile(ctx context.Context, logger logr.Logger, key, nam
 
 func (c *controller) buildVerifyMutatingWebhookConfiguration(_ context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.MutatingWebhookConfiguration, error) {
 	return &admissionregistrationv1.MutatingWebhookConfiguration{
-			ObjectMeta: objectMeta(config.VerifyMutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+			ObjectMeta: objectMeta(config.VerifyMutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 			Webhooks: []admissionregistrationv1.MutatingWebhook{{
 				Name:         config.VerifyMutatingWebhookName,
 				ClientConfig: c.clientConfig(caBundle, config.VerifyMutatingWebhookServicePath),
@@ -539,7 +538,7 @@ func (c *controller) buildVerifyMutatingWebhookConfiguration(_ context.Context, 
 
 func (c *controller) buildPolicyMutatingWebhookConfiguration(_ context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.MutatingWebhookConfiguration, error) {
 	return &admissionregistrationv1.MutatingWebhookConfiguration{
-			ObjectMeta: objectMeta(config.PolicyMutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+			ObjectMeta: objectMeta(config.PolicyMutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 			Webhooks: []admissionregistrationv1.MutatingWebhook{{
 				Name:         config.PolicyMutatingWebhookName,
 				ClientConfig: c.clientConfig(caBundle, config.PolicyMutatingWebhookServicePath),
@@ -562,7 +561,7 @@ func (c *controller) buildPolicyMutatingWebhookConfiguration(_ context.Context, 
 
 func (c *controller) buildPolicyValidatingWebhookConfiguration(_ context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.ValidatingWebhookConfiguration, error) {
 	return &admissionregistrationv1.ValidatingWebhookConfiguration{
-			ObjectMeta: objectMeta(config.PolicyValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+			ObjectMeta: objectMeta(config.PolicyValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 			Webhooks: []admissionregistrationv1.ValidatingWebhook{{
 				Name:         config.PolicyValidatingWebhookName,
 				ClientConfig: c.clientConfig(caBundle, config.PolicyValidatingWebhookServicePath),
@@ -584,7 +583,7 @@ func (c *controller) buildPolicyValidatingWebhookConfiguration(_ context.Context
 
 func (c *controller) buildDefaultResourceMutatingWebhookConfiguration(_ context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.MutatingWebhookConfiguration, error) {
 	return &admissionregistrationv1.MutatingWebhookConfiguration{
-			ObjectMeta: objectMeta(config.MutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+			ObjectMeta: objectMeta(config.MutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 			Webhooks: []admissionregistrationv1.MutatingWebhook{{
 				Name:         config.MutatingWebhookName + "-ignore",
 				ClientConfig: c.clientConfig(caBundle, config.MutatingWebhookServicePath+"/ignore"),
@@ -630,7 +629,7 @@ func (c *controller) buildDefaultResourceMutatingWebhookConfiguration(_ context.
 
 func (c *controller) buildResourceMutatingWebhookConfiguration(ctx context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.MutatingWebhookConfiguration, error) {
 	result := admissionregistrationv1.MutatingWebhookConfiguration{
-		ObjectMeta: objectMeta(config.MutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+		ObjectMeta: objectMeta(config.MutatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 		Webhooks:   []admissionregistrationv1.MutatingWebhook{},
 	}
 	if c.watchdogCheck() {
@@ -708,7 +707,7 @@ func (c *controller) buildDefaultResourceValidatingWebhookConfiguration(_ contex
 		sideEffects = &noneOnDryRun
 	}
 	return &admissionregistrationv1.ValidatingWebhookConfiguration{
-			ObjectMeta: objectMeta(config.ValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+			ObjectMeta: objectMeta(config.ValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 			Webhooks: []admissionregistrationv1.ValidatingWebhook{{
 				Name:         config.ValidatingWebhookName + "-ignore",
 				ClientConfig: c.clientConfig(caBundle, config.ValidatingWebhookServicePath+"/ignore"),
@@ -756,7 +755,7 @@ func (c *controller) buildDefaultResourceValidatingWebhookConfiguration(_ contex
 
 func (c *controller) buildResourceValidatingWebhookConfiguration(ctx context.Context, cfg config.Configuration, caBundle []byte) (*admissionregistrationv1.ValidatingWebhookConfiguration, error) {
 	result := admissionregistrationv1.ValidatingWebhookConfiguration{
-		ObjectMeta: objectMeta(config.ValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), cfg.GetWebhookLabels(), c.buildOwner()...),
+		ObjectMeta: objectMeta(config.ValidatingWebhookConfigurationName, cfg.GetWebhookAnnotations(), c.buildOwner()...),
 		Webhooks:   []admissionregistrationv1.ValidatingWebhook{},
 	}
 	if c.watchdogCheck() {

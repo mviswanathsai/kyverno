@@ -1,6 +1,7 @@
 package context
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -24,7 +25,13 @@ func (ctx *context) Query(query string) (interface{}, error) {
 		return nil, fmt.Errorf("incorrect query %s: %v", query, err)
 	}
 	// search
-	result, err := queryPath.Search(ctx.jsonRaw)
+	ctx.mutex.RLock()
+	defer ctx.mutex.RUnlock()
+	var data interface{}
+	if err := json.Unmarshal(ctx.jsonRaw, &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal context: %w", err)
+	}
+	result, err := queryPath.Search(data)
 	if err != nil {
 		return nil, fmt.Errorf("JMESPath query failed: %w", err)
 	}

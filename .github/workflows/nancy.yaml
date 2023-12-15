@@ -21,15 +21,11 @@ jobs:
     name: Nancy
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: Setup caches
-        uses: ./.github/actions/setup-caches
-        timeout-minutes: 5
-        continue-on-error: true
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
       - name: Setup build env
         uses: ./.github/actions/setup-build-env
         timeout-minutes: 10
       - name: WriteGoList
-        run: go list -json -deps ./... > go.list
+        run: go list -json -m all > go.list
       - name: Nancy SAST Scan
         uses: sonatype-nexus-community/nancy-github-action@726e338312e68ecdd4b4195765f174d3b3ce1533 # v1.0.3

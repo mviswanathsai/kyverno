@@ -90,7 +90,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "latest-image-tag-policy"
+		   "name": "validate-image"
 		},
 		"spec": {
 		   "rules": [
@@ -149,7 +149,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "equality-hostpath-policy"
+		   "name": "validate-host-path"
 		},
 		"spec": {
 		   "rules": [
@@ -185,7 +185,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "security-context-policy"
+		   "name": "policy-secaas-k8s"
 		},
 		"spec": {
 		   "rules": [
@@ -218,7 +218,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		  "name": "container-name-policy"
+		  "name": "fuzzPolicy"
 		},
 		"spec": {
 		  "rules": [
@@ -252,7 +252,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		  "name": "pod-existence-policy"
+		  "name": "policy-secaas-k8s"
 		},
 		"spec": {
 		  "rules": [
@@ -287,7 +287,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		  "name": "host-path-cannot-exist-policy"
+		  "name": "validate-host-path"
 		},
 		"spec": {
 		  "rules": [
@@ -323,7 +323,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "namespace-cannot-be-empty-or-default-policy"
+		   "name": "validate-namespace"
 		},
 		"spec": {
 		   "rules": [
@@ -362,7 +362,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "hostnetwork-and-port-not-allowed-policy"
+		   "name": "validate-host-network-port"
 		},
 		"spec": {
 		   "rules": [
@@ -403,7 +403,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "supplemental-groups-should-be-higher-than-zero-policy"
+		   "name": "policy-secaas-k8s"
 		},
 		"spec": {
 		   "rules": [
@@ -433,7 +433,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "supplemental-groups-should-be-between"
+		   "name": "policy-secaas-k8s"
 		},
 		"spec": {
 		   "rules": [
@@ -465,7 +465,7 @@ var (
 		"apiVersion": "kyvernov1.io/v1",
 		"kind": "ClusterPolicy",
 		"metadata": {
-		   "name": "should-have-more-memory-than-first-container"
+		   "name": "policy-secaas-k8s"
 		},
 		"spec": {
 		   "rules": [

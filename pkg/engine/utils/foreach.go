@@ -5,7 +5,7 @@ import (
 
 	engineapi "github.com/kyverno/kyverno/pkg/engine/api"
 	enginecontext "github.com/kyverno/kyverno/pkg/engine/context"
-	"github.com/kyverno/kyverno/pkg/engine/jsonutils"
+	"github.com/kyverno/kyverno/pkg/engine/variables"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -31,7 +31,7 @@ func InvertedElement(elements []interface{}) {
 }
 
 func AddElementToContext(ctx engineapi.PolicyContext, element interface{}, index, nesting int, elementScope *bool) error {
-	data, err := jsonutils.DocumentToUntyped(element)
+	data, err := variables.DocumentToUntyped(element)
 	if err != nil {
 		return err
 	}

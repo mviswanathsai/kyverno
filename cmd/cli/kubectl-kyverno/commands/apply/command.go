@@ -76,7 +76,7 @@ func Command() *cobra.Command {
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			out := cmd.OutOrStdout()
-			color.Init(removeColor)
+			color.InitColors(removeColor)
 			applyCommandConfig.PolicyPaths = args
 			rc, _, skipInvalidPolicies, responses, err := applyCommandConfig.applyCommandHelper(out)
 			if err != nil {

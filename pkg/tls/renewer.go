@@ -50,7 +50,6 @@ type certRenewer struct {
 	certRenewalInterval time.Duration
 	caValidityDuration  time.Duration
 	tlsValidityDuration time.Duration
-	renewBefore         time.Duration
 
 	// server is an IP address or domain name where Kyverno controller runs. Only required if out-of-cluster.
 	server     string
@@ -66,8 +65,7 @@ func NewCertRenewer(
 	client client,
 	certRenewalInterval,
 	caValidityDuration,
-	tlsValidityDuration,
-	renewBefore time.Duration,
+	tlsValidityDuration time.Duration,
 	server string,
 	commonName string,
 	dnsNames []string,
@@ -80,7 +78,6 @@ func NewCertRenewer(
 		certRenewalInterval: certRenewalInterval,
 		caValidityDuration:  caValidityDuration,
 		tlsValidityDuration: tlsValidityDuration,
-		renewBefore:         renewBefore,
 		server:              server,
 		commonName:          commonName,
 		dnsNames:            dnsNames,
@@ -98,7 +95,7 @@ func (c *certRenewer) RenewCA(ctx context.Context) error {
 	}
 	now := time.Now()
 	certs = removeExpiredCertificates(now, certs...)
-	if !allCertificatesExpired(now.Add(c.renewBefore), certs...) {
+	if !allCertificatesExpired(now.Add(5*c.certRenewalInterval), certs...) {
 		return nil
 	}
 	if !isSecretManagedByKyverno(secret) {
@@ -142,7 +139,7 @@ func (c *certRenewer) RenewTLS(ctx context.Context) error {
 	if cert != nil {
 		valid, err := c.ValidateCert(ctx)
 		if err != nil || !valid {
-		} else if !allCertificatesExpired(now.Add(c.renewBefore), cert) {
+		} else if !allCertificatesExpired(now.Add(5*c.certRenewalInterval), cert) {
 			return nil
 		}
 	}

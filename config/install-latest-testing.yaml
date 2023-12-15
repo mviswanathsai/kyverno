@@ -212,8 +212,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: admissionreports.kyverno.io
@@ -551,8 +551,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: backgroundscanreports.kyverno.io
@@ -858,8 +858,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: cleanuppolicies.kyverno.io
@@ -3368,8 +3368,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: clusteradmissionreports.kyverno.io
@@ -3708,8 +3708,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: clusterbackgroundscanreports.kyverno.io
@@ -4015,8 +4015,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: clustercleanuppolicies.kyverno.io
@@ -6525,8 +6525,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: clusterpolicies.kyverno.io
@@ -24258,8 +24258,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: policies.kyverno.io
@@ -41994,8 +41994,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: policyexceptions.kyverno.io
@@ -42041,98 +42041,6 @@ spec:
                   that are only available in the admission review request (e.g. user
                   name).
                 type: boolean
-              conditions:
-                description: Conditions are used to determine if a resource applies
-                  to the exception by evaluating a set of conditions. The declaration
-                  can contain nested `any` or `all` statements.
-                properties:
-                  all:
-                    description: AllConditions enable variable-based conditional rule
-                      execution. This is useful for finer control of when an rule
-                      is applied. A condition can reference object data using JMESPath
-                      notation. Here, all of the conditions need to pass.
-                    items:
-                      properties:
-                        key:
-                          description: Key is the context entry (using JMESPath) for
-                            conditional rule evaluation.
-                          x-kubernetes-preserve-unknown-fields: true
-                        message:
-                          description: Message is an optional display message
-                          type: string
-                        operator:
-                          description: 'Operator is the conditional operation to perform.
-                            Valid operators are: Equals, NotEquals, In, AnyIn, AllIn,
-                            NotIn, AnyNotIn, AllNotIn, GreaterThanOrEquals, GreaterThan,
-                            LessThanOrEquals, LessThan, DurationGreaterThanOrEquals,
-                            DurationGreaterThan, DurationLessThanOrEquals, DurationLessThan'
-                          enum:
-                          - Equals
-                          - NotEquals
-                          - AnyIn
-                          - AllIn
-                          - AnyNotIn
-                          - AllNotIn
-                          - GreaterThanOrEquals
-                          - GreaterThan
-                          - LessThanOrEquals
-                          - LessThan
-                          - DurationGreaterThanOrEquals
-                          - DurationGreaterThan
-                          - DurationLessThanOrEquals
-                          - DurationLessThan
-                          type: string
-                        value:
-                          description: Value is the conditional value, or set of values.
-                            The values can be fixed set or can be variables declared
-                            using JMESPath.
-                          x-kubernetes-preserve-unknown-fields: true
-                      type: object
-                    type: array
-                  any:
-                    description: AnyConditions enable variable-based conditional rule
-                      execution. This is useful for finer control of when an rule
-                      is applied. A condition can reference object data using JMESPath
-                      notation. Here, at least one of the conditions need to pass.
-                    items:
-                      properties:
-                        key:
-                          description: Key is the context entry (using JMESPath) for
-                            conditional rule evaluation.
-                          x-kubernetes-preserve-unknown-fields: true
-                        message:
-                          description: Message is an optional display message
-                          type: string
-                        operator:
-                          description: 'Operator is the conditional operation to perform.
-                            Valid operators are: Equals, NotEquals, In, AnyIn, AllIn,
-                            NotIn, AnyNotIn, AllNotIn, GreaterThanOrEquals, GreaterThan,
-                            LessThanOrEquals, LessThan, DurationGreaterThanOrEquals,
-                            DurationGreaterThan, DurationLessThanOrEquals, DurationLessThan'
-                          enum:
-                          - Equals
-                          - NotEquals
-                          - AnyIn
-                          - AllIn
-                          - AnyNotIn
-                          - AllNotIn
-                          - GreaterThanOrEquals
-                          - GreaterThan
-                          - LessThanOrEquals
-                          - LessThan
-                          - DurationGreaterThanOrEquals
-                          - DurationGreaterThan
-                          - DurationLessThanOrEquals
-                          - DurationLessThan
-                          type: string
-                        value:
-                          description: Value is the conditional value, or set of values.
-                            The values can be fixed set or can be variables declared
-                            using JMESPath.
-                          x-kubernetes-preserve-unknown-fields: true
-                      type: object
-                    type: array
-                type: object
               exceptions:
                 description: Exceptions is a list policy/rules to be excluded
                 items:
@@ -42632,98 +42540,6 @@ spec:
                   that are only available in the admission review request (e.g. user
                   name).
                 type: boolean
-              conditions:
-                description: Conditions are used to determine if a resource applies
-                  to the exception by evaluating a set of conditions. The declaration
-                  can contain nested `any` or `all` statements.
-                properties:
-                  all:
-                    description: AllConditions enable variable-based conditional rule
-                      execution. This is useful for finer control of when an rule
-                      is applied. A condition can reference object data using JMESPath
-                      notation. Here, all of the conditions need to pass.
-                    items:
-                      properties:
-                        key:
-                          description: Key is the context entry (using JMESPath) for
-                            conditional rule evaluation.
-                          x-kubernetes-preserve-unknown-fields: true
-                        message:
-                          description: Message is an optional display message
-                          type: string
-                        operator:
-                          description: 'Operator is the conditional operation to perform.
-                            Valid operators are: Equals, NotEquals, In, AnyIn, AllIn,
-                            NotIn, AnyNotIn, AllNotIn, GreaterThanOrEquals, GreaterThan,
-                            LessThanOrEquals, LessThan, DurationGreaterThanOrEquals,
-                            DurationGreaterThan, DurationLessThanOrEquals, DurationLessThan'
-                          enum:
-                          - Equals
-                          - NotEquals
-                          - AnyIn
-                          - AllIn
-                          - AnyNotIn
-                          - AllNotIn
-                          - GreaterThanOrEquals
-                          - GreaterThan
-                          - LessThanOrEquals
-                          - LessThan
-                          - DurationGreaterThanOrEquals
-                          - DurationGreaterThan
-                          - DurationLessThanOrEquals
-                          - DurationLessThan
-                          type: string
-                        value:
-                          description: Value is the conditional value, or set of values.
-                            The values can be fixed set or can be variables declared
-                            using JMESPath.
-                          x-kubernetes-preserve-unknown-fields: true
-                      type: object
-                    type: array
-                  any:
-                    description: AnyConditions enable variable-based conditional rule
-                      execution. This is useful for finer control of when an rule
-                      is applied. A condition can reference object data using JMESPath
-                      notation. Here, at least one of the conditions need to pass.
-                    items:
-                      properties:
-                        key:
-                          description: Key is the context entry (using JMESPath) for
-                            conditional rule evaluation.
-                          x-kubernetes-preserve-unknown-fields: true
-                        message:
-                          description: Message is an optional display message
-                          type: string
-                        operator:
-                          description: 'Operator is the conditional operation to perform.
-                            Valid operators are: Equals, NotEquals, In, AnyIn, AllIn,
-                            NotIn, AnyNotIn, AllNotIn, GreaterThanOrEquals, GreaterThan,
-                            LessThanOrEquals, LessThan, DurationGreaterThanOrEquals,
-                            DurationGreaterThan, DurationLessThanOrEquals, DurationLessThan'
-                          enum:
-                          - Equals
-                          - NotEquals
-                          - AnyIn
-                          - AllIn
-                          - AnyNotIn
-                          - AllNotIn
-                          - GreaterThanOrEquals
-                          - GreaterThan
-                          - LessThanOrEquals
-                          - LessThan
-                          - DurationGreaterThanOrEquals
-                          - DurationGreaterThan
-                          - DurationLessThanOrEquals
-                          - DurationLessThan
-                          type: string
-                        value:
-                          description: Value is the conditional value, or set of values.
-                            The values can be fixed set or can be variables declared
-                            using JMESPath.
-                          x-kubernetes-preserve-unknown-fields: true
-                      type: object
-                    type: array
-                type: object
               exceptions:
                 description: Exceptions is a list policy/rules to be excluded
                 items:
@@ -43204,8 +43020,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: updaterequests.kyverno.io
@@ -43616,8 +43432,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: clusterpolicyreports.wgpolicyk8s.io
@@ -43985,8 +43801,8 @@ metadata:
     app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
-    app.kubernetes.io/version: 0.0.0
-    helm.sh/chart: crds-0.0.0
+    app.kubernetes.io/version: 3.1.1
+    helm.sh/chart: crds-3.1.1
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
   name: policyreports.wgpolicyk8s.io
@@ -45440,7 +45256,6 @@ metadata:
     app.kubernetes.io/version: latest
 spec:
   replicas: 
-  revisionHistoryLimit: 10
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -45525,7 +45340,6 @@ spec:
             - --tlsSecretName=kyverno-svc.kyverno.svc.kyverno-tls-pair
             - --backgroundServiceAccountName=system:serviceaccount:kyverno:kyverno-background-controller
             - --servicePort=443
-            - --webhookServerPort=9443
             - --disableMetrics=false
             - --otelConfig=prometheus
             - --metricsPort=8000
@@ -45633,7 +45447,6 @@ metadata:
     app.kubernetes.io/version: latest
 spec:
   replicas: 
-  revisionHistoryLimit: 10
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -45732,7 +45545,6 @@ metadata:
     app.kubernetes.io/version: latest
 spec:
   replicas: 
-  revisionHistoryLimit: 10
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -45780,8 +45592,6 @@ spec:
             - --caSecretName=kyverno-cleanup-controller.kyverno.svc.kyverno-tls-ca
             - --tlsSecretName=kyverno-cleanup-controller.kyverno.svc.kyverno-tls-pair
             - --servicePort=443
-            - --cleanupServerPort=9443
-            - --webhookServerPort=9443
             - --disableMetrics=false
             - --otelConfig=prometheus
             - --metricsPort=8000
@@ -45866,7 +45676,6 @@ metadata:
     app.kubernetes.io/version: latest
 spec:
   replicas: 
-  revisionHistoryLimit: 10
   strategy:
     rollingUpdate:
       maxSurge: 1

@@ -95,8 +95,8 @@ func TestDeferredLoaderMismatch(t *testing.T) {
 func newContext() *context {
 	return &context{
 		jp:                 jp,
-		jsonRaw:            make(map[string]interface{}),
-		jsonRawCheckpoints: make([]map[string]interface{}, 0),
+		jsonRaw:            []byte(`{}`),
+		jsonRawCheckpoints: make([][]byte, 0),
 		deferred:           NewDeferredLoaders(),
 	}
 }
@@ -290,7 +290,7 @@ func TestDeferredCheckpointRestore(t *testing.T) {
 
 func TestDeferredForloop(t *testing.T) {
 	ctx := newContext()
-	addDeferred(ctx, "value", float64(-1))
+	addDeferred(ctx, "value", -1)
 
 	ctx.Checkpoint()
 	for i := 0; i < 5; i++ {
@@ -299,7 +299,7 @@ func TestDeferredForloop(t *testing.T) {
 		assert.Equal(t, float64(i-1), val)
 
 		ctx.Reset()
-		mock, _ := addDeferred(ctx, "value", float64(i))
+		mock, _ := addDeferred(ctx, "value", i)
 		val, err = ctx.Query("value")
 		assert.NilError(t, err)
 		assert.Equal(t, float64(i), val)

@@ -1,6 +1,7 @@
 package variables
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 

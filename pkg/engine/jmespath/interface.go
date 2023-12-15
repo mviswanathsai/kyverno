@@ -1,9 +1,6 @@
 package jmespath
 
-import (
-	gojmespath "github.com/kyverno/go-jmespath"
-	"github.com/kyverno/kyverno/pkg/config"
-)
+import "github.com/kyverno/kyverno/pkg/config"
 
 type Query interface {
 	Search(interface{}) (interface{}, error)
@@ -15,17 +12,23 @@ type Interface interface {
 }
 
 type implementation struct {
-	functionCaller *gojmespath.FunctionCaller
+	configuration config.Configuration
 }
 
 func New(configuration config.Configuration) Interface {
-	return newImplementation(configuration)
+	return implementation{
+		configuration: configuration,
+	}
 }
 
 func (i implementation) Query(query string) (Query, error) {
-	return newJMESPath(query, i.functionCaller)
+	return newJMESPath(i.configuration, query)
 }
 
 func (i implementation) Search(query string, data interface{}) (interface{}, error) {
-	return newExecution(i.functionCaller, query, data)
+	if query, err := i.Query(query); err != nil {
+		return nil, err
+	} else {
+		return query.Search(data)
+	}
 }

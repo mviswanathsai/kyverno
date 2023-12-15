@@ -1,6 +1,8 @@
 package variables
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -206,6 +208,11 @@ func Test_subVars_with_JMESPath_At(t *testing.T) {
 	}`)
 
 	var err error
+
+	expected := new(bytes.Buffer)
+	err = json.Compact(expected, expectedRaw)
+	assert.NilError(t, err)
+
 	var pattern, resource interface{}
 	err = json.Unmarshal(patternMap, &pattern)
 	assert.NilError(t, err)
@@ -220,7 +227,7 @@ func Test_subVars_with_JMESPath_At(t *testing.T) {
 	assert.NilError(t, err)
 	out, err := json.Marshal(output)
 	assert.NilError(t, err)
-	assert.Equal(t, string(out), compact(t, expectedRaw))
+	assert.Equal(t, string(out), expected.String())
 }
 
 func Test_subVars_withRegexMatch(t *testing.T) {
@@ -261,6 +268,10 @@ func Test_subVars_withRegexMatch(t *testing.T) {
 
 	var err error
 
+	expected := new(bytes.Buffer)
+	err = json.Compact(expected, expectedRaw)
+	assert.NilError(t, err)
+
 	var pattern, resource interface{}
 	err = json.Unmarshal(patternMap, &pattern)
 	assert.NilError(t, err)
@@ -275,7 +286,7 @@ func Test_subVars_withRegexMatch(t *testing.T) {
 	assert.NilError(t, err)
 	out, err := json.Marshal(output)
 	assert.NilError(t, err)
-	assert.Equal(t, string(out), compact(t, expectedRaw))
+	assert.Equal(t, string(out), expected.String())
 }
 
 func Test_subVars_withMerge(t *testing.T) {
@@ -287,6 +298,10 @@ func Test_subVars_withMerge(t *testing.T) {
 
 	var err error
 
+	expected := new(bytes.Buffer)
+	err = json.Compact(expected, expectedRaw)
+	assert.NilError(t, err)
+
 	var pattern, resource interface{}
 	err = json.Unmarshal(patternMap, &pattern)
 	assert.NilError(t, err)
@@ -301,17 +316,7 @@ func Test_subVars_withMerge(t *testing.T) {
 	assert.NilError(t, err)
 	out, err := json.Marshal(output)
 	assert.NilError(t, err)
-	assert.Equal(t, string(out), compact(t, expectedRaw))
-}
-
-func compact(t *testing.T, in []byte) string {
-	var tmp map[string]interface{}
-	err := json.Unmarshal(in, &tmp)
-	assert.NilError(t, err)
-
-	out, err := json.Marshal(tmp)
-	assert.NilError(t, err)
-	return string(out)
+	assert.Equal(t, string(out), expected.String())
 }
 
 func Test_subVars_withRegexReplaceAll(t *testing.T) {
@@ -388,27 +393,16 @@ func Test_ReplacingPathWhenDeleting(t *testing.T) {
 	var pattern interface{}
 	var err error
 	err = json.Unmarshal(patternRaw, &pattern)
-	assert.NilError(t, err)
-
-	ctxMap, err := unmarshalToMap(resourceRaw)
-	assert.NilError(t, err)
-
-	ctx := context.NewContextFromRaw(jp, ctxMap)
+	if err != nil {
+		t.Error(err)
+	}
+	ctx := context.NewContextFromRaw(jp, resourceRaw)
 	assert.NilError(t, err)
 
 	pattern, err = SubstituteAll(logr.Discard(), ctx, pattern)
 	assert.NilError(t, err)
 
 	assert.Equal(t, fmt.Sprintf("%v", pattern), "bar")
-}
-
-func unmarshalToMap(jsonBytes []byte) (map[string]interface{}, error) {
-	var data map[string]interface{}
-	if err := json.Unmarshal(jsonBytes, &data); err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }
 
 func Test_ReplacingNestedVariableWhenDeleting(t *testing.T) {
@@ -434,12 +428,12 @@ func Test_ReplacingNestedVariableWhenDeleting(t *testing.T) {
 	var pattern interface{}
 	var err error
 	err = json.Unmarshal(patternRaw, &pattern)
+	if err != nil {
+		t.Error(err)
+	}
+	ctx := context.NewContextFromRaw(jp, resourceRaw)
 	assert.NilError(t, err)
 
-	ctxMap, err := unmarshalToMap(resourceRaw)
-	assert.NilError(t, err)
-
-	ctx := context.NewContextFromRaw(jp, ctxMap)
 	pattern, err = SubstituteAll(logr.Discard(), ctx, pattern)
 	assert.NilError(t, err)
 
@@ -639,10 +633,7 @@ func Test_variableSubstitution_array(t *testing.T) {
 	err := json.Unmarshal(ruleRaw, &rule)
 	assert.NilError(t, err)
 
-	ctxMap, err := unmarshalToMap(configmapRaw)
-	assert.NilError(t, err)
-
-	ctx := context.NewContextFromRaw(jp, ctxMap)
+	ctx := context.NewContextFromRaw(jp, configmapRaw)
 	context.AddResource(ctx, resourceRaw)
 
 	vars, err := SubstituteAllInRule(logr.Discard(), ctx, rule)
@@ -1109,8 +1100,7 @@ func Test_EscpReferenceSubstitution(t *testing.T) {
 			  "test1": "$(../../../../spec/namespace)",
 			  "test2": "\\$(ENV_VAR)",
 			  "test3": "\\${ENV_VAR}",
-			  "test4": "\\\\\\${ENV_VAR}",
-			  "test5": "\\$(NODE_NAME)/postgres/\\$(POD_NAME)"
+			  "test4": "\\\\\\${ENV_VAR}"
             }
 		},
 		"(spec)": {
@@ -1128,8 +1118,7 @@ func Test_EscpReferenceSubstitution(t *testing.T) {
 			  "test1": "n1",
 			  "test2": "$(ENV_VAR)",
 			  "test3": "\\${ENV_VAR}",
-			  "test4": "\\\\\\${ENV_VAR}",
-			  "test5": "$(NODE_NAME)/postgres/$(POD_NAME)"
+			  "test4": "\\\\\\${ENV_VAR}"
             }
 		},
 		"(spec)": {
@@ -1182,11 +1171,7 @@ func Test_ReplacingEscpNestedVariableWhenDeleting(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	ctxMap, err := unmarshalToMap(resourceRaw)
-	assert.NilError(t, err)
-
-	ctx := context.NewContextFromRaw(jp, ctxMap)
+	ctx := context.NewContextFromRaw(jp, resourceRaw)
 	assert.NilError(t, err)
 
 	pattern, err = SubstituteAll(logr.Discard(), ctx, pattern)

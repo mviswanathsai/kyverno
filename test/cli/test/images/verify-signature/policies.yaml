@@ -80,5 +80,5 @@ spec:
       mutateDigest: false
       required: true
       useCache: true
-      verifyDigest: false
+      verifyDigest: true
   validationFailureAction: Enforce

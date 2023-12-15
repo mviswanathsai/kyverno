@@ -3,7 +3,6 @@ package webhooks
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -83,7 +82,6 @@ func NewServer(
 	rbLister rbacv1listers.RoleBindingLister,
 	crbLister rbacv1listers.ClusterRoleBindingLister,
 	discovery dclient.IDiscovery,
-	webhookServerPort int32,
 ) Server {
 	mux := httprouter.New()
 	resourceLogger := logger.WithName("resource")
@@ -163,7 +161,7 @@ func NewServer(
 	mux.HandlerFunc("GET", config.ReadinessServicePath, handlers.Probe(runtime.IsReady))
 	return &server{
 		server: &http.Server{
-			Addr: fmt.Sprintf(":%d", webhookServerPort),
+			Addr: ":9443",
 			TLSConfig: &tls.Config{
 				GetCertificate: func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 					certPem, keyPem, err := tlsProvider()

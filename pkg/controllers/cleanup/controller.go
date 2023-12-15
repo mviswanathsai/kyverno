@@ -22,7 +22,6 @@ import (
 	"github.com/kyverno/kyverno/pkg/event"
 	"github.com/kyverno/kyverno/pkg/logging"
 	"github.com/kyverno/kyverno/pkg/metrics"
-	"github.com/kyverno/kyverno/pkg/utils/conditions"
 	controllerutils "github.com/kyverno/kyverno/pkg/utils/controller"
 	"github.com/kyverno/kyverno/pkg/utils/match"
 	"go.opentelemetry.io/otel"
@@ -281,7 +280,7 @@ func (c *controller) cleanup(ctx context.Context, logger logr.Logger, policy kyv
 							errs = append(errs, err)
 							continue
 						}
-						passed, err := conditions.CheckAnyAllConditions(logger, enginectx, *spec.Conditions)
+						passed, err := checkAnyAllConditions(logger, enginectx, *spec.Conditions)
 						if err != nil {
 							debug.Error(err, "failed to check condition")
 							errs = append(errs, err)

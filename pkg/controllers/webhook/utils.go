@@ -7,7 +7,6 @@ import (
 
 	"github.com/kyverno/kyverno/api/kyverno"
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
-	"golang.org/x/exp/maps"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -86,16 +85,12 @@ func (wh *webhook) isEmpty() bool {
 	return len(wh.rules) == 0
 }
 
-func objectMeta(name string, annotations map[string]string, labels map[string]string, owner ...metav1.OwnerReference) metav1.ObjectMeta {
-	desiredLabels := make(map[string]string)
-	defaultLabels := map[string]string{
-		kyverno.LabelWebhookManagedBy: kyverno.ValueKyvernoApp,
-	}
-	maps.Copy(desiredLabels, labels)
-	maps.Copy(desiredLabels, defaultLabels)
+func objectMeta(name string, annotations map[string]string, owner ...metav1.OwnerReference) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Name:            name,
-		Labels:          desiredLabels,
+		Name: name,
+		Labels: map[string]string{
+			kyverno.LabelWebhookManagedBy: kyverno.ValueKyvernoApp,
+		},
 		Annotations:     annotations,
 		OwnerReferences: owner,
 	}

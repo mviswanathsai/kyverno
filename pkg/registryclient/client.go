@@ -14,6 +14,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	gcrremote "github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/kyverno/kyverno/pkg/tracing"
+	"github.com/sigstore/cosign/v2/pkg/oci/remote"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"k8s.io/apimachinery/pkg/util/sets"
 	corev1listers "k8s.io/client-go/listers/core/v1"
@@ -38,7 +39,7 @@ var (
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 
-	userAgent = fmt.Sprintf("Kyverno/%s (%s; %s)", version.GetVersionInfo().GitVersion, runtime.GOOS, runtime.GOARCH)
+	userAgent = fmt.Sprintf("cosign/%s (%s; %s)", version.GetVersionInfo().GitVersion, runtime.GOOS, runtime.GOARCH)
 )
 
 // Client provides registry related objects.
@@ -53,8 +54,11 @@ type Client interface {
 	// and provides access to metadata about remote artifact.
 	FetchImageDescriptor(context.Context, string) (*gcrremote.Descriptor, error)
 
-	// Options returns remote.Option configuration for the client.
-	Options(context.Context) ([]gcrremote.Option, error)
+	// BuildCosignRemoteOption builds remote.Option for cosign client.
+	BuildCosignRemoteOption(context.Context) (remote.Option, error)
+
+	// BuildGCRRemoteOption builds []gcrremote.option based on client.
+	BuildGCRRemoteOption(ctx context.Context) ([]gcrremote.Option, error)
 }
 
 type client struct {
@@ -164,28 +168,40 @@ func WithTracing() Option {
 	}
 }
 
-// Options returns remote.Option config parameters for the client
-func (c *client) Options(ctx context.Context) ([]gcrremote.Option, error) {
-	opts := []gcrremote.Option{
+// BuildCosignRemoteOption builds remote.Option for cosign client.
+func (c *client) BuildCosignRemoteOption(ctx context.Context) (remote.Option, error) {
+	gcrRemoteOpts, err := c.getGCRRemoteOption(ctx)
+	if err != nil {
+		return nil, err
+	}
+	gcrRemoteOpts = append(gcrRemoteOpts, gcrremote.WithUserAgent(userAgent))
+	return remote.WithRemoteOptions(gcrRemoteOpts...), nil
+}
+
+// BuildGCRRemoteOption builds []gcrremote.Option based on client.
+func (c *client) BuildGCRRemoteOption(ctx context.Context) ([]gcrremote.Option, error) {
+	return c.getGCRRemoteOption(ctx)
+}
+
+func (c *client) getGCRRemoteOption(ctx context.Context) ([]gcrremote.Option, error) {
+	remoteOpts := []gcrremote.Option{
 		gcrremote.WithAuthFromKeychain(c.keychain),
 		gcrremote.WithTransport(c.transport),
 		gcrremote.WithContext(ctx),
-		gcrremote.WithUserAgent(userAgent),
 	}
 
-	pusher, err := gcrremote.NewPusher(opts...)
+	pusher, err := gcrremote.NewPusher(remoteOpts...)
 	if err != nil {
 		return nil, err
 	}
-	opts = append(opts, gcrremote.Reuse(pusher))
+	remoteOpts = append(remoteOpts, gcrremote.Reuse(pusher))
 
-	puller, err := gcrremote.NewPuller(opts...)
+	puller, err := gcrremote.NewPuller(remoteOpts...)
 	if err != nil {
 		return nil, err
 	}
-	opts = append(opts, gcrremote.Reuse(puller))
-
-	return opts, nil
+	remoteOpts = append(remoteOpts, gcrremote.Reuse(puller))
+	return remoteOpts, nil
 }
 
 // FetchImageDescriptor fetches Descriptor from registry with given imageRef

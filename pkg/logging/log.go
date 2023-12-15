@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/klog/v2"
-	"k8s.io/klog/v2/textlogger"
+	"k8s.io/klog/v2/klogr"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -49,11 +49,8 @@ func InitFlags(flags *flag.FlagSet) {
 func Setup(logFormat string, level int) error {
 	switch logFormat {
 	case TextFormat:
-		config := textlogger.NewConfig(
-			textlogger.Verbosity(level),
-			textlogger.Output(os.Stdout),
-		)
-		globalLog = textlogger.NewLogger(config)
+		// in text mode we use FormatSerialize format
+		globalLog = klogr.New()
 	case JSONFormat:
 		zc := zap.NewProductionConfig()
 		// Zap's levels get more and less verbose as the number gets smaller and higher respectively (DebugLevel is -1, InfoLevel is 0, WarnLevel is 1, and so on).
