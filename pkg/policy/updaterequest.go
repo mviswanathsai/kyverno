@@ -1,6 +1,8 @@
 package policy
 
 import (
+	"context"
+
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
 	kyvernov1beta1 "github.com/kyverno/kyverno/api/kyverno/v1beta1"
 	common "github.com/kyverno/kyverno/pkg/background/common"
@@ -10,11 +12,17 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func newUR(policy kyvernov1.PolicyInterface, trigger kyvernov1.ResourceSpec, ruleName string, ruleType kyvernov1beta1.RequestType, deleteDownstream bool) *kyvernov1beta1.UpdateRequest {
+func newUR(pc *policyController, policy kyvernov1.PolicyInterface, trigger kyvernov1.ResourceSpec, ruleName string, ruleType kyvernov1beta1.RequestType, deleteDownstream bool) *kyvernov1beta1.UpdateRequest {
 	var policyNameNamespaceKey string
+	var ctx context.Context
 
 	if policy.IsNamespaced() {
 		policyNameNamespaceKey = policy.GetNamespace() + "/" + policy.GetName()
+		isTerminating, _ := isTerminating(ctx, pc, policyNameNamespaceKey)
+		if isTerminating {
+			//TODO: How do we handle this error
+		}
+
 	} else {
 		policyNameNamespaceKey = policy.GetName()
 	}
@@ -53,6 +61,7 @@ func newUR(policy kyvernov1.PolicyInterface, trigger kyvernov1.ResourceSpec, rul
 }
 
 func newURStatus(downstream unstructured.Unstructured) kyvernov1beta1.UpdateRequestStatus {
+
 	return kyvernov1beta1.UpdateRequestStatus{
 		State: kyvernov1beta1.Pending,
 		GeneratedResources: []kyvernov1.ResourceSpec{
@@ -65,4 +74,26 @@ func newURStatus(downstream unstructured.Unstructured) kyvernov1beta1.UpdateRequ
 			},
 		},
 	}
+}
+
+func isTerminating(ctx context.Context, pc *policyController, name string) (bool, error) {
+
+	getOpts := metav1.GetOptions{
+		TypeMeta: metav1.TypeMeta{
+			Kind: "Namespace",
+		},
+	}
+
+	namespace, err := pc.client.GetKubeClient().CoreV1().Namespaces().Get(ctx, name, getOpts)
+
+	if err != nil {
+		return true, err
+	} else {
+		if namespace.Status.String() == "terminating" {
+			return true, nil
+		} else {
+			return false, nil
+		}
+	}
+
 }
