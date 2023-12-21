@@ -31,7 +31,13 @@ func (pc *policyController) handleMutate(policyKey string, policy kyvernov1.Poli
 				}
 
 				logger.Info("creating new UR for mutate")
-				ur := newUR(pc, policy, backgroundcommon.ResourceSpecFromUnstructured(*trigger), rule.Name, ruleType, false)
+				ur, err := newUR(pc, policy, backgroundcommon.ResourceSpecFromUnstructured(*trigger), rule.Name, ruleType, false)
+				if err != nil {
+					pc.log.Error(err, "failed to create new UR on policy update", "policy", policy.GetName(), "rule", rule.Name, "rule type", ruleType,
+						"target", fmt.Sprintf("%s/%s/%s/%s", trigger.GetAPIVersion(), trigger.GetKind(), trigger.GetNamespace(), trigger.GetName()))
+					continue
+				}
+
 				skip, err := pc.handleUpdateRequest(ur, trigger, rule, policy)
 				if err != nil {
 					pc.log.Error(err, "failed to create new UR on policy update", "policy", policy.GetName(), "rule", rule.Name, "rule type", ruleType,

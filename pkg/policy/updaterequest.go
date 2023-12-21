@@ -2,6 +2,7 @@ package policy
 
 import (
 	"context"
+	"errors"
 
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
 	kyvernov1beta1 "github.com/kyverno/kyverno/api/kyverno/v1beta1"
@@ -12,15 +13,17 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-func newUR(pc *policyController, policy kyvernov1.PolicyInterface, trigger kyvernov1.ResourceSpec, ruleName string, ruleType kyvernov1beta1.RequestType, deleteDownstream bool) *kyvernov1beta1.UpdateRequest {
+func newUR(pc *policyController, policy kyvernov1.PolicyInterface, trigger kyvernov1.ResourceSpec, ruleName string, ruleType kyvernov1beta1.RequestType, deleteDownstream bool) (*kyvernov1beta1.UpdateRequest, error) {
 	var policyNameNamespaceKey string
 	var ctx context.Context
 
 	if policy.IsNamespaced() {
 		policyNameNamespaceKey = policy.GetNamespace() + "/" + policy.GetName()
-		isTerminating, _ := isTerminating(ctx, pc, policyNameNamespaceKey)
-		if isTerminating {
-			//TODO: How do we handle this error
+		isTerminating, err := isTerminating(ctx, pc, policyNameNamespaceKey)
+		if err != nil {
+			return nil, errors.New("an error occurred in asserting the status of the namespace of the namespaced resource")
+		} else if isTerminating {
+			return nil, errors.New("namespace of the namespaced resource is of status 'terminating'")
 		}
 
 	} else {
@@ -57,7 +60,7 @@ func newUR(pc *policyController, policy kyvernov1.PolicyInterface, trigger kyver
 			},
 			DeleteDownstream: deleteDownstream,
 		},
-	}
+	}, nil
 }
 
 func newURStatus(downstream unstructured.Unstructured) kyvernov1beta1.UpdateRequestStatus {
@@ -78,6 +81,8 @@ func newURStatus(downstream unstructured.Unstructured) kyvernov1beta1.UpdateRequ
 
 func isTerminating(ctx context.Context, pc *policyController, name string) (bool, error) {
 
+	defer ctx.Done()
+
 	getOpts := metav1.GetOptions{
 		TypeMeta: metav1.TypeMeta{
 			Kind: "Namespace",
@@ -87,7 +92,7 @@ func isTerminating(ctx context.Context, pc *policyController, name string) (bool
 	namespace, err := pc.client.GetKubeClient().CoreV1().Namespaces().Get(ctx, name, getOpts)
 
 	if err != nil {
-		return true, err
+		return false, err
 	} else {
 		if namespace.Status.String() == "terminating" {
 			return true, nil
