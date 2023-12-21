@@ -19,7 +19,7 @@ func newUR(pc *policyController, policy kyvernov1.PolicyInterface, trigger kyver
 
 	if policy.IsNamespaced() {
 		policyNameNamespaceKey = policy.GetNamespace() + "/" + policy.GetName()
-		isTerminating, err := isTerminating(ctx, pc, policyNameNamespaceKey)
+		isTerminating, err := namespaceIsTerminating(ctx, pc, policyNameNamespaceKey)
 		if err != nil {
 			return nil, errors.New("an error occurred in asserting the status of the namespace of the namespaced resource")
 		} else if isTerminating {
@@ -79,18 +79,21 @@ func newURStatus(downstream unstructured.Unstructured) kyvernov1beta1.UpdateRequ
 	}
 }
 
-func isTerminating(ctx context.Context, pc *policyController, name string) (bool, error) {
+func namespaceIsTerminating(ctx context.Context, pc *policyController, name string) (bool, error) {
 
 	defer ctx.Done()
 
+	// Should not be necessary, but for good measure
 	getOpts := metav1.GetOptions{
 		TypeMeta: metav1.TypeMeta{
 			Kind: "Namespace",
 		},
 	}
 
+	// Get the namespace object
 	namespace, err := pc.client.GetKubeClient().CoreV1().Namespaces().Get(ctx, name, getOpts)
 
+	// Check if it is in terminating status
 	if err != nil {
 		return false, err
 	} else {
